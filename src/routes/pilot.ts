@@ -1,10 +1,12 @@
 import Router from 'koa-router';
 import PilotController from '../controllers/pilot';
 import PilotValidator from '../validators/pilot';
+import PilotRepository from '../repositories/pilot';
 
 const router = new Router({ prefix: '/pilots' });
 const pilotValidator = new PilotValidator();
-const pilotController = new PilotController(pilotValidator);
+const pilotRepository = new PilotRepository();
+const pilotController = new PilotController(pilotValidator, pilotRepository);
 
 router.get('/', async (ctx) => {
   const httpResponse = await pilotController.index();

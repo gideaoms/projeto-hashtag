@@ -1,5 +1,4 @@
 import httpStatus from 'http-status';
-import dbConnection from '../providers/db-connection';
 import {
   PilotControllerContract,
   IndexResult,
@@ -7,21 +6,16 @@ import {
   StoreResult,
 } from '../contracts/controllers/pilot';
 import { PilotValidatorContract } from '../contracts/validators/pilot';
+import { PilotRepositoryContract } from '../contracts/repository/pilot';
 
 class PilotController implements PilotControllerContract {
-  constructor(private pilotValidator: PilotValidatorContract) {}
+  constructor(
+    private pilotValidator: PilotValidatorContract,
+    private pilotRepository: PilotRepositoryContract,
+  ) {}
 
   public async index(): Promise<IndexResult> {
-    const pilots = await dbConnection
-      .select([
-        'pilots.*',
-        'vehicles.name as vehicle_name',
-        'vehicles.manufacturer as vehicle_manufacturer',
-        'vehicles.passengers as vehicle_passengers',
-      ])
-      .from('pilots')
-      .innerJoin('pilot_vehicle', 'pilot_vehicle.id_pilot', '=', 'pilots.id')
-      .innerJoin('vehicles', 'vehicles.id', '=', 'pilot_vehicle.id_vehicle');
+    const pilots = await this.pilotRepository.index();
     return { status: httpStatus.OK, body: pilots };
   }
 
@@ -32,18 +26,8 @@ class PilotController implements PilotControllerContract {
       return { status: httpStatus.BAD_REQUEST, body: { message: error.message } };
     }
     const validatedData = validatedDataOrError;
-    return dbConnection.transaction(async (transaction) => {
-      const [createdPilot] = await dbConnection
-        .insert({ name: validatedData.name, mass: validatedData.mass, height: validatedData.height })
-        .into('pilots')
-        .returning('*')
-        .transacting(transaction);
-      await dbConnection
-        .insert({ id_vehicle: validatedData.vehicleId, id_pilot: createdPilot.id })
-        .into('pilot_vehicle')
-        .transacting(transaction);
-      return { status: httpStatus.CREATED, body: createdPilot };
-    });
+    const createdPilot = await this.pilotRepository.store(validatedData);
+    return { status: httpStatus.CREATED, body: createdPilot };
   }
 }
 
