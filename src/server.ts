@@ -1,8 +1,8 @@
-import Koa from "koa";
-import * as bodyparser from "koa-bodyparser";
-import authMiddleware from "./middlewares/auth";
-import pilotRouter from "./routes/pilot";
-import { PORT } from "./config/app";
+import Koa from 'koa';
+import bodyparser from 'koa-bodyparser';
+import authMiddleware from './middlewares/auth';
+import pilotRouter from './routes/pilot';
+import { PORT } from './config/app';
 
 const server = new Koa();
 

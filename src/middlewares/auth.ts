@@ -1,13 +1,13 @@
-import { Context, Next } from "koa";
+import { Context, Next } from 'koa';
 
 const authMiddleware = (ctx: Context, next: Next) => {
   const unauthorizedCode = 401;
-  const [, token] = ctx.headers.authorization?.split(" ");
-  const isEqual = "MOnkjnbB32143435795689754yuNEB" === token;
+  const [, token] = ctx.headers.authorization?.split(' ');
+  const isEqual = 'MOnkjnbB32143435795689754yuNEB' === token;
   if (!isEqual) {
     return (ctx.response.status = unauthorizedCode);
   }
-  return next()
+  return next();
 };
 
 export default authMiddleware;
