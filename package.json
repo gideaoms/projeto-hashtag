@@ -8,8 +8,12 @@
     "dev": "nodemon ./src/server.ts",
     "prd": "node --require dotenv/config ./dist/server.js"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "API",
+    "KoaJS",
+    "Clean"
+  ],
+  "author": "Gideão Silva",
   "license": "MIT",
   "dependencies": {
     "dotenv": "^8.2.0",
