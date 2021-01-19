@@ -1,13 +1,14 @@
 import path from 'path';
 
-export default {
-  client: 'postgresql',
+const resolve = (directory: string) => path.resolve(__dirname, 'src', 'database', directory);
+
+module.exports = {
+  client: process.env.DB_CLIENT,
   connection: {
-    host: 'localhost',
-    port: 3006,
-    database: 'postgres',
-    user: 'postgres',
-    password: '123456',
+    database: process.env.DB_NAME,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    host: process.env.DB_HOST,
   },
   pool: {
     min: 2,
@@ -16,6 +17,11 @@ export default {
   migrations: {
     tableName: 'knex_migrations',
     extension: 'ts',
-    directory: path.resolve('src', 'database', 'migrations'),
+    directory: resolve('migrations'),
+  },
+  seeds: {
+    tableName: 'knex_seeds',
+    extension: 'ts',
+    directory: resolve('seeds'),
   },
 };

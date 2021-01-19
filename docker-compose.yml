@@ -1,14 +1,51 @@
 version: "3.9"
 
-services:
-  postgres:
-    image: postgres
-    environment:
-      POSTGRES_PASSWORD: 123456
-    ports:
-      - 3006:5432
+volumes:
+  vol_postgres_hashtag:
+  vol_pgadmin_hashtag:
 
-  adminer:
-    image: adminer
+services:
+  api:
+    container_name: hashtag_api
+    image: bitnami/node:14.15.1
+    env_file:
+      - .env
+    command: npm run dev
     ports:
-      - 3005:8080
+      - ${APP_PORT}:${APP_PORT}
+    working_dir: /usr/app
+    volumes:
+      - .:/usr/app
+    depends_on:
+      - postgres
+    restart: on-failure
+
+  postgres:
+    container_name: hashtag_postgres
+    image: bitnami/postgresql:12.5.0
+    env_file:
+      - .env
+    environment:
+      POSTGRESQL_USERNAME: ${DB_USER}
+      POSTGRESQL_PASSWORD: ${DB_PASS}
+      POSTGRESQL_DATABASE: ${DB_NAME}
+    volumes:
+      - vol_postgres_hashtag:/bitnami/postgresql
+      - ./db.sh:/docker-entrypoint-initdb.d/db.sh:ro
+
+  pgadmin:
+    container_name: hashtag_pgadmin
+    image: dpage/pgadmin4:4.29
+    env_file:
+      - .env
+    ports:
+      - ${PGADMIN_PORT}:80
+    logging:
+      driver: none
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_MAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASS}
+    volumes:
+      - vol_pgadmin_hashtag:/var/lib/pgadmin
+    depends_on:
+      - postgres

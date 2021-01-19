@@ -1,8 +1,8 @@
-import database from '../providers/database';
+import dbConnection from '../providers/db-connection';
 
 class PilotController {
   public async index() {
-    const pilots = await database
+    const pilots = await dbConnection
       .select([
         'pilots.*',
         'vehicles.name as vehicle_name',
@@ -16,11 +16,13 @@ class PilotController {
   }
 
   public async store(opts: { name: string; mass: number; height: number; vehicleId: number }) {
-    const [createdPilot] = await database
+    const [createdPilot] = await dbConnection
       .insert({ name: opts.name, mass: opts.mass, height: opts.height })
       .into('pilots')
       .returning('*');
-    await database.insert({ id_vehicle: opts.vehicleId, id_pilot: createdPilot.id }).into('pilot_vehicle');
+    await dbConnection
+      .insert({ id_vehicle: opts.vehicleId, id_pilot: createdPilot.id })
+      .into('pilot_vehicle');
     return createdPilot;
   }
 }
