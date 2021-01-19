@@ -1,23 +1,27 @@
 import Router from 'koa-router';
 import PilotController from '../controllers/pilot';
+import PilotValidator from '../validators/pilot';
 
 const router = new Router({ prefix: '/pilots' });
-const pilotController = new PilotController();
+const pilotValidator = new PilotValidator();
+const pilotController = new PilotController(pilotValidator);
 
 router.get('/', async (ctx) => {
-  const pilots = await pilotController.index();
-  ctx.response.body = pilots;
+  const httpResponse = await pilotController.index();
+  ctx.response.status = httpResponse.status;
+  ctx.response.body = httpResponse.body;
 });
 
 router.post('/', async (ctx) => {
   const { name, mass, height, vehicleId } = ctx.request.body;
-  const createdPilot = await pilotController.store({
+  const httpResponse = await pilotController.store({
     name,
     mass,
     height,
     vehicleId,
   });
-  ctx.response.body = createdPilot;
+  ctx.response.status = httpResponse.status;
+  ctx.response.body = httpResponse.body;
 });
 
 export default router;
