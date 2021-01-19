@@ -12,5 +12,5 @@ server.use(pilotRouter.allowedMethods());
 server.use(pilotRouter.routes());
 
 server.listen(PORT, () => {
-  console.log(`Server is running. Port: ${PORT}`);
+  console.log(`Server is running. Port: ${PORT} - test`);
 });
