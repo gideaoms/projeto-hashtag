@@ -16,14 +16,18 @@ class PilotController {
   }
 
   public async store(opts: { name: string; mass: number; height: number; vehicleId: number }) {
-    const [createdPilot] = await dbConnection
-      .insert({ name: opts.name, mass: opts.mass, height: opts.height })
-      .into('pilots')
-      .returning('*');
-    await dbConnection
-      .insert({ id_vehicle: opts.vehicleId, id_pilot: createdPilot.id })
-      .into('pilot_vehicle');
-    return createdPilot;
+    return dbConnection.transaction(async (transaction) => {
+      const [createdPilot] = await dbConnection
+        .insert({ name: opts.name, mass: opts.mass, height: opts.height })
+        .into('pilots')
+        .returning('*')
+        .transacting(transaction);
+      await dbConnection
+        .insert({ id_vehicle: opts.vehicleId, id_pilot: createdPilot.id })
+        .into('pilot_vehicle')
+        .transacting(transaction);
+      return createdPilot;
+    });
   }
 }
 
